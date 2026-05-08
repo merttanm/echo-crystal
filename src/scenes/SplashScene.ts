@@ -1,9 +1,9 @@
-import Phaser from 'phaser';
-import { getProfileFromRegistry } from '../progression/ProfileRegistry';
+import Phaser from "phaser";
+import { getProfileFromRegistry } from "../progression/ProfileRegistry";
 
 export class SplashScene extends Phaser.Scene {
   constructor() {
-    super('SplashScene');
+    super("SplashScene");
   }
 
   create() {
@@ -17,7 +17,13 @@ export class SplashScene extends Phaser.Scene {
     bg.fillRect(0, 0, width, height);
 
     // Soft crystal glow
-    const glow = this.add.circle(width / 2, height / 2 - 30, 135, 0x00e5ff, 0.12);
+    const glow = this.add.circle(
+      width / 2,
+      height / 2 - 30,
+      135,
+      0x00e5ff,
+      0.12,
+    );
     glow.setBlendMode(Phaser.BlendModes.ADD);
 
     this.tweens.add({
@@ -27,7 +33,7 @@ export class SplashScene extends Phaser.Scene {
       duration: 1800,
       yoyo: true,
       repeat: -1,
-      ease: 'Sine.easeInOut',
+      ease: "Sine.easeInOut",
     });
 
     // Decorative crystal diamond
@@ -54,19 +60,19 @@ export class SplashScene extends Phaser.Scene {
     crystal.setScale(0.9);
 
     // Main logo
-    const logo = this.add.text(width / 2, height / 2 - 38, 'HEIRS\nOF AETHER', {
-      fontFamily: 'Arial, sans-serif',
-      fontSize: '34px',
-      fontStyle: 'bold',
-      color: '#f8fafc',
-      align: 'center',
+    const logo = this.add.text(width / 2, height / 2 - 38, "HEIRS\nOF AETHER", {
+      fontFamily: "Arial, sans-serif",
+      fontSize: "34px",
+      fontStyle: "bold",
+      color: "#f8fafc",
+      align: "center",
       lineSpacing: 4,
-      stroke: '#00e5ff',
+      stroke: "#00e5ff",
       strokeThickness: 1,
       shadow: {
         offsetX: 0,
         offsetY: 0,
-        color: '#00e5ff',
+        color: "#00e5ff",
         blur: 14,
         fill: true,
       },
@@ -77,30 +83,42 @@ export class SplashScene extends Phaser.Scene {
     logo.setResolution(2);
 
     // Subtitle
-    const subtitle = this.add.text(width / 2, height / 2 + 48, 'HEIRS OF AETHER', {
-      fontFamily: 'Arial, sans-serif',
-      fontSize: '13px',
-      fontStyle: 'bold',
-      color: '#67e8f9',
-      align: 'center',
-      letterSpacing: 3,
-    });
+    const subtitle = this.add.text(
+      width / 2,
+      height / 2 + 48,
+      "HEIRS OF AETHER",
+      {
+        fontFamily: "Arial, sans-serif",
+        fontSize: "13px",
+        fontStyle: "bold",
+        color: "#67e8f9",
+        align: "center",
+        letterSpacing: 3,
+      },
+    );
 
     subtitle.setOrigin(0.5);
     subtitle.setAlpha(0);
     subtitle.setResolution(2);
 
     // Bottom line
-    const line = this.add.rectangle(width / 2, height / 2 + 78, 170, 2, 0x00e5ff, 0.75);
+    const line = this.add.rectangle(
+      width / 2,
+      height / 2 + 78,
+      170,
+      2,
+      0x00e5ff,
+      0.75,
+    );
     line.setAlpha(0);
     line.setBlendMode(Phaser.BlendModes.ADD);
 
-    const loading = this.add.text(width / 2, height - 74, 'TAP TO CONTINUE', {
-      fontFamily: 'Arial, sans-serif',
-      fontSize: '10px',
-      fontStyle: 'bold',
-      color: '#64748b',
-      align: 'center',
+    const loading = this.add.text(width / 2, height - 74, "TAP TO CONTINUE", {
+      fontFamily: "Arial, sans-serif",
+      fontSize: "10px",
+      fontStyle: "bold",
+      color: "#64748b",
+      align: "center",
       letterSpacing: 4,
     });
 
@@ -114,7 +132,7 @@ export class SplashScene extends Phaser.Scene {
       alpha: 1,
       scale: 1,
       duration: 700,
-      ease: 'Back.easeOut',
+      ease: "Back.easeOut",
     });
 
     this.tweens.add({
@@ -123,7 +141,7 @@ export class SplashScene extends Phaser.Scene {
       y: logo.y - 6,
       duration: 850,
       delay: 250,
-      ease: 'Cubic.easeOut',
+      ease: "Cubic.easeOut",
     });
 
     this.tweens.add({
@@ -132,7 +150,7 @@ export class SplashScene extends Phaser.Scene {
       y: subtitle.y - 4,
       duration: 750,
       delay: 650,
-      ease: 'Cubic.easeOut',
+      ease: "Cubic.easeOut",
     });
 
     this.tweens.add({
@@ -140,7 +158,7 @@ export class SplashScene extends Phaser.Scene {
       alpha: 1,
       duration: 600,
       delay: 900,
-      ease: 'Sine.easeOut',
+      ease: "Sine.easeOut",
     });
 
     // Professional subtle breathing effect
@@ -150,7 +168,7 @@ export class SplashScene extends Phaser.Scene {
       duration: 1900,
       yoyo: true,
       repeat: -1,
-      ease: 'Sine.easeInOut',
+      ease: "Sine.easeInOut",
     });
 
     this.tweens.add({
@@ -158,7 +176,7 @@ export class SplashScene extends Phaser.Scene {
       angle: 360,
       duration: 9000,
       repeat: -1,
-      ease: 'Linear',
+      ease: "Linear",
     });
 
     this.tweens.add({
@@ -167,7 +185,7 @@ export class SplashScene extends Phaser.Scene {
       duration: 700,
       yoyo: true,
       repeat: -1,
-      ease: 'Sine.easeInOut',
+      ease: "Sine.easeInOut",
     });
 
     let hasStartedNextScene = false;
@@ -181,13 +199,15 @@ export class SplashScene extends Phaser.Scene {
 
       this.time.delayedCall(660, () => {
         const profile = getProfileFromRegistry(this);
-        const nextScene = profile.selectedCharacterId ? 'HubScene' : 'CharacterSelectScene';
+        const nextScene = profile.selectedCharacterId
+          ? "HubScene"
+          : "CharacterSelectScene";
 
         this.scene.start(nextScene);
       });
     };
 
-    this.input.once('pointerdown', startNextScene);
+    this.input.once("pointerdown", startNextScene);
     this.time.delayedCall(2600, startNextScene);
   }
 }

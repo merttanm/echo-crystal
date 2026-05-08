@@ -1,5 +1,5 @@
 export class MobileControls {
-    show() {
-        // mobile controls placeholder
-    }
+  show() {
+    // mobile controls placeholder
+  }
 }

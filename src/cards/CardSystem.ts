@@ -1,8 +1,8 @@
-import type { CardData } from './CardTypes';
+import type { CardData } from "./CardTypes";
 
 export class CardSystem {
-    playCard(card: CardData) {
-        // card play handling placeholder
-        return `played ${card.name}`;
-    }
+  playCard(card: CardData) {
+    // card play handling placeholder
+    return `played ${card.name}`;
+  }
 }

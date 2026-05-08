@@ -1,13 +1,13 @@
-import type { CardData } from './CardTypes';
+import type { CardData } from "./CardTypes";
 
 export class Deck {
-    public cards: CardData[];
+  public cards: CardData[];
 
-    constructor(cards: CardData[] = []) {
-        this.cards = cards;
-    }
+  constructor(cards: CardData[] = []) {
+    this.cards = cards;
+  }
 
-    add(card: CardData) {
-        this.cards.push(card);
-    }
+  add(card: CardData) {
+    this.cards.push(card);
+  }
 }

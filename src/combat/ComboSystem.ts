@@ -1,5 +1,5 @@
 export class ComboSystem {
-    trackCombo() {
-        // combo tracking placeholder
-    }
+  trackCombo() {
+    // combo tracking placeholder
+  }
 }
