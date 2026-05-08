@@ -1,26 +1,26 @@
-import Phaser from 'phaser';
-import { CardDatabase } from '../cards/CardDatabase';
-import type { CardData } from '../cards/CardTypes';
-import { getUpgradeCost, getBuildingDefinition } from '../data/buildings';
-import type { BuildingId } from '../data/buildings';
-import { characters } from '../data/characters';
-import { maps, type GameMap } from '../data/maps';
+import Phaser from "phaser";
+import { CardDatabase } from "../cards/CardDatabase";
+import type { CardData } from "../cards/CardTypes";
+import { getUpgradeCost, getBuildingDefinition } from "../data/buildings";
+import type { BuildingId } from "../data/buildings";
+import { characters } from "../data/characters";
+import { maps, type GameMap } from "../data/maps";
 import {
   getProfileFromRegistry,
   updateProfileInRegistry,
-} from '../progression/ProfileRegistry';
+} from "../progression/ProfileRegistry";
 import type {
   PlayerProfile,
   ResourceWallet,
   BuildingState,
-} from '../progression/PlayerProfile';
+} from "../progression/PlayerProfile";
 
 const UI_DEPTH = 10;
 const OVERLAY_DEPTH = 100;
 
 export class HubScene extends Phaser.Scene {
   constructor() {
-    super('HubScene');
+    super("HubScene");
   }
 
   create() {
@@ -31,7 +31,7 @@ export class HubScene extends Phaser.Scene {
     const profile = getProfileFromRegistry(this);
     const commander =
       characters.find((item) => item.id === profile.selectedCharacterId)
-        ?.name ?? 'Commander';
+        ?.name ?? "Commander";
 
     this.createBackground(width, height);
     this.createTopBar(profile);
@@ -42,7 +42,7 @@ export class HubScene extends Phaser.Scene {
 
   private createBackground(width: number, height: number) {
     this.add
-      .image(width / 2, height / 2, 'crystal_temple_bg')
+      .image(width / 2, height / 2, "crystal_temple_bg")
       .setDisplaySize(width, height)
       .setDepth(-4)
       .setAlpha(0.5);
@@ -68,7 +68,7 @@ export class HubScene extends Phaser.Scene {
       duration: 2400,
       yoyo: true,
       repeat: -1,
-      ease: 'Sine.easeInOut',
+      ease: "Sine.easeInOut",
     });
 
     for (let i = 0; i < 28; i += 1) {
@@ -78,7 +78,7 @@ export class HubScene extends Phaser.Scene {
           Phaser.Math.Between(90, height - 130),
           Phaser.Math.FloatBetween(1.2, 2.4),
           0x67e8f9,
-          Phaser.Math.FloatBetween(0.12, 0.38)
+          Phaser.Math.FloatBetween(0.12, 0.38),
         )
         .setDepth(-1)
         .setBlendMode(Phaser.BlendModes.ADD);
@@ -90,7 +90,7 @@ export class HubScene extends Phaser.Scene {
         duration: Phaser.Math.Between(2400, 5200),
         delay: Phaser.Math.Between(0, 1200),
         repeat: -1,
-        ease: 'Sine.easeOut',
+        ease: "Sine.easeOut",
       });
     }
   }
@@ -102,13 +102,17 @@ export class HubScene extends Phaser.Scene {
     this.createResourcePill(318, 30, `${profile.resources.crystal}`, 0xa78bfa);
   }
 
-  private createHeroHeader(width: number, commander: string, profile: PlayerProfile) {
-    this.createText(width / 2, 74, 'ECHO CRYSTAL', {
-      fontSize: '24px',
-      color: '#f8fafc',
-      fontStyle: 'bold',
-      align: 'center',
-      stroke: '#0891b2',
+  private createHeroHeader(
+    width: number,
+    commander: string,
+    profile: PlayerProfile,
+  ) {
+    this.createText(width / 2, 74, "ECHO CRYSTAL", {
+      fontSize: "24px",
+      color: "#f8fafc",
+      fontStyle: "bold",
+      align: "center",
+      stroke: "#0891b2",
       strokeThickness: 1,
     }).setOrigin(0.5);
 
@@ -117,11 +121,11 @@ export class HubScene extends Phaser.Scene {
       101,
       `${commander.toUpperCase()} • KINGDOM POWER ${this.getPower(profile)}`,
       {
-        fontSize: '10px',
-        color: '#67e8f9',
-        fontStyle: 'bold',
-        align: 'center',
-      }
+        fontSize: "10px",
+        color: "#67e8f9",
+        fontStyle: "bold",
+        align: "center",
+      },
     ).setOrigin(0.5);
   }
 
@@ -156,18 +160,23 @@ export class HubScene extends Phaser.Scene {
     diamond.lineBetween(0, -76, 0, 80);
     diamond.lineBetween(-48, -8, 48, -8);
 
-    const title = this.createText(0, 112, 'CRYSTAL KINGDOM', {
-      fontSize: '16px',
-      color: '#f8fafc',
-      fontStyle: 'bold',
-      align: 'center',
+    const title = this.createText(0, 112, "CRYSTAL KINGDOM", {
+      fontSize: "16px",
+      color: "#f8fafc",
+      fontStyle: "bold",
+      align: "center",
     }).setOrigin(0.5);
 
-    const subtitle = this.createText(0, 134, 'Upgrade. Conquer. Unlock the Void Gate.', {
-      fontSize: '9px',
-      color: '#94a3b8',
-      align: 'center',
-    }).setOrigin(0.5);
+    const subtitle = this.createText(
+      0,
+      134,
+      "Upgrade. Conquer. Unlock the Void Gate.",
+      {
+        fontSize: "9px",
+        color: "#94a3b8",
+        align: "center",
+      },
+    ).setOrigin(0.5);
 
     core.add([aura, diamond, title, subtitle]);
 
@@ -178,7 +187,7 @@ export class HubScene extends Phaser.Scene {
       duration: 1800,
       yoyo: true,
       repeat: -1,
-      ease: 'Sine.easeInOut',
+      ease: "Sine.easeInOut",
     });
 
     this.tweens.add({
@@ -187,7 +196,7 @@ export class HubScene extends Phaser.Scene {
       duration: 1700,
       yoyo: true,
       repeat: -1,
-      ease: 'Sine.easeInOut',
+      ease: "Sine.easeInOut",
     });
   }
 
@@ -195,20 +204,40 @@ export class HubScene extends Phaser.Scene {
     const startY = height - 210;
     const gap = 58;
 
-    this.createActionButton(width / 2, startY, 'BATTLE', 'Choose map and fight', 0x0ea5e9, () =>
-      this.showWorldPanel()
+    this.createActionButton(
+      width / 2,
+      startY,
+      "BATTLE",
+      "Choose map and fight",
+      0x0ea5e9,
+      () => this.showWorldPanel(),
     );
 
-    this.createActionButton(width / 2, startY + gap, 'CASTLE', 'Upgrade your kingdom', 0xfacc15, () =>
-      this.showCastlePanel()
+    this.createActionButton(
+      width / 2,
+      startY + gap,
+      "CASTLE",
+      "Upgrade your kingdom",
+      0xfacc15,
+      () => this.showCastlePanel(),
     );
 
-    this.createActionButton(width / 2, startY + gap * 2, 'HEROES', 'View cards and powers', 0xa78bfa, () =>
-      this.showHeroPanel()
+    this.createActionButton(
+      width / 2,
+      startY + gap * 2,
+      "HEROES",
+      "View cards and powers",
+      0xa78bfa,
+      () => this.showHeroPanel(),
     );
 
-    this.createActionButton(width / 2, startY + gap * 3, 'QUESTS', 'Daily objectives', 0x22c55e, () =>
-      this.showQuestPanel()
+    this.createActionButton(
+      width / 2,
+      startY + gap * 3,
+      "QUESTS",
+      "Daily objectives",
+      0x22c55e,
+      () => this.showQuestPanel(),
     );
   }
 
@@ -218,7 +247,7 @@ export class HubScene extends Phaser.Scene {
     title: string,
     subtitle: string,
     color: number,
-    onPress: () => void
+    onPress: () => void,
   ) {
     const button = this.add.container(x, y).setDepth(UI_DEPTH + 5);
 
@@ -233,79 +262,84 @@ export class HubScene extends Phaser.Scene {
     const dot = this.add.circle(-122, 0, 7, color, 0.95);
 
     const titleText = this.createText(-104, -10, title, {
-      fontSize: '13px',
-      color: '#f8fafc',
-      fontStyle: 'bold',
+      fontSize: "13px",
+      color: "#f8fafc",
+      fontStyle: "bold",
     });
 
     const subtitleText = this.createText(-104, 8, subtitle, {
-      fontSize: '9px',
-      color: '#94a3b8',
+      fontSize: "9px",
+      color: "#94a3b8",
     });
 
-    const arrow = this.createText(122, 0, '›', {
-      fontSize: '24px',
-      color: '#f8fafc',
-      fontStyle: 'bold',
-      align: 'center',
+    const arrow = this.createText(122, 0, "›", {
+      fontSize: "24px",
+      color: "#f8fafc",
+      fontStyle: "bold",
+      align: "center",
     }).setOrigin(0.5);
 
     button.add([glow, bg, dot, titleText, subtitleText, arrow]);
     button.setSize(296, 46);
     button.setInteractive(
       new Phaser.Geom.Rectangle(-148, -23, 296, 46),
-      Phaser.Geom.Rectangle.Contains
+      Phaser.Geom.Rectangle.Contains,
     );
 
-    button.on('pointerover', () => {
+    button.on("pointerover", () => {
       glow.setAlpha(0.18);
       this.tweens.add({ targets: button, scale: 1.025, duration: 100 });
     });
 
-    button.on('pointerout', () => {
+    button.on("pointerout", () => {
       glow.setAlpha(1);
       this.tweens.add({ targets: button, scale: 1, duration: 100 });
     });
 
-    button.on('pointerdown', onPress);
+    button.on("pointerdown", onPress);
   }
 
   private showCastlePanel() {
     const profile = getProfileFromRegistry(this);
-    const castle = this.getBuildingState(profile, 'castle');
-    const definition = getBuildingDefinition('castle');
+    const castle = this.getBuildingState(profile, "castle");
+    const definition = getBuildingDefinition("castle");
     const cost = getUpgradeCost(definition, castle.level);
     const canUpgrade = this.canAfford(profile.resources, cost);
 
     const { overlay, panel } = this.createOverlayPanel(318, 390);
 
     panel.add(
-      this.createText(0, -156, 'CASTLE CORE', {
-        fontSize: '22px',
-        color: '#ffffff',
-        fontStyle: 'bold',
-        align: 'center',
-        stroke: '#0e7490',
+      this.createText(0, -156, "CASTLE CORE", {
+        fontSize: "22px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        align: "center",
+        stroke: "#0e7490",
         strokeThickness: 1,
-      }).setOrigin(0.5)
+      }).setOrigin(0.5),
     );
 
     panel.add(
       this.createText(0, -126, `Level ${castle.level}`, {
-        fontSize: '12px',
-        color: '#67e8f9',
-        fontStyle: 'bold',
-        align: 'center',
-      }).setOrigin(0.5)
+        fontSize: "12px",
+        color: "#67e8f9",
+        fontStyle: "bold",
+        align: "center",
+      }).setOrigin(0.5),
     );
 
     panel.add(
-      this.createText(0, -88, 'The castle increases kingdom power and unlocks stronger upgrades.', {
-        fontSize: '10px',
-        color: '#cbd5e1',
-        align: 'center',
-        wordWrap: { width: 250 },
-      }).setOrigin(0.5)
+      this.createText(
+        0,
+        -88,
+        "The castle increases kingdom power and unlocks stronger upgrades.",
+        {
+          fontSize: "10px",
+          color: "#cbd5e1",
+          align: "center",
+          wordWrap: { width: 250 },
+        },
+      ).setOrigin(0.5),
     );
 
     panel.add(this.createCostRow(0, -20, cost, profile.resources));
@@ -313,13 +347,13 @@ export class HubScene extends Phaser.Scene {
     const upgrade = this.createPanelButton(
       0,
       52,
-      canUpgrade ? 'UPGRADE CASTLE' : 'NEED RESOURCES',
-      canUpgrade ? 0x0e7490 : 0x475569
+      canUpgrade ? "UPGRADE CASTLE" : "NEED RESOURCES",
+      canUpgrade ? 0x0e7490 : 0x475569,
     );
 
-    upgrade.on('pointerdown', () => {
+    upgrade.on("pointerdown", () => {
       if (!canUpgrade) {
-        this.showToast('Not enough resources.');
+        this.showToast("Not enough resources.");
         return;
       }
 
@@ -327,7 +361,7 @@ export class HubScene extends Phaser.Scene {
         ...current,
         resources: this.spendResources(current.resources, cost),
         buildings: current.buildings.map((item) =>
-          item.id === 'castle' ? { ...item, level: item.level + 1 } : item
+          item.id === "castle" ? { ...item, level: item.level + 1 } : item,
         ),
         updatedAt: new Date().toISOString(),
       }));
@@ -337,8 +371,8 @@ export class HubScene extends Phaser.Scene {
 
     panel.add(upgrade);
 
-    const close = this.createPanelButton(0, 112, 'CLOSE', 0x1e293b);
-    close.on('pointerdown', () => this.closeOverlay(overlay, panel));
+    const close = this.createPanelButton(0, 112, "CLOSE", 0x1e293b);
+    close.on("pointerdown", () => this.closeOverlay(overlay, panel));
     panel.add(close);
 
     this.openOverlay(overlay, panel);
@@ -349,22 +383,22 @@ export class HubScene extends Phaser.Scene {
     const { overlay, panel } = this.createOverlayPanel(322, 448);
 
     panel.add(
-      this.createText(0, -196, 'WORLD MAP', {
-        fontSize: '22px',
-        color: '#ffffff',
-        fontStyle: 'bold',
-        align: 'center',
-        stroke: '#0e7490',
+      this.createText(0, -196, "WORLD MAP", {
+        fontSize: "22px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        align: "center",
+        stroke: "#0e7490",
         strokeThickness: 1,
-      }).setOrigin(0.5)
+      }).setOrigin(0.5),
     );
 
     maps.forEach((map, index) => {
       panel.add(this.createWorldTarget(map, -142, -142 + index * 92, profile));
     });
 
-    const close = this.createPanelButton(0, 184, 'CLOSE', 0x1e293b);
-    close.on('pointerdown', () => this.closeOverlay(overlay, panel));
+    const close = this.createPanelButton(0, 184, "CLOSE", 0x1e293b);
+    close.on("pointerdown", () => this.closeOverlay(overlay, panel));
     panel.add(close);
 
     this.openOverlay(overlay, panel);
@@ -374,7 +408,7 @@ export class HubScene extends Phaser.Scene {
     map: GameMap,
     x: number,
     y: number,
-    profile: PlayerProfile
+    profile: PlayerProfile,
   ) {
     const locked = profile.level < map.recommendedLevel;
     const target = this.add.container(x, y);
@@ -390,14 +424,14 @@ export class HubScene extends Phaser.Scene {
       .setStrokeStyle(1, locked ? 0x64748b : map.accentColor, 0.9);
 
     const title = this.createText(50, 12, map.name, {
-      fontSize: '13px',
-      color: locked ? '#94a3b8' : '#ffffff',
-      fontStyle: 'bold',
+      fontSize: "13px",
+      color: locked ? "#94a3b8" : "#ffffff",
+      fontStyle: "bold",
     });
 
     const enemy = this.createText(50, 33, map.enemyName, {
-      fontSize: '9px',
-      color: '#94a3b8',
+      fontSize: "9px",
+      color: "#94a3b8",
     });
 
     const reward = this.createText(
@@ -405,34 +439,34 @@ export class HubScene extends Phaser.Scene {
       52,
       `${map.rewards.xp} XP • ${map.rewards.gold} Gold`,
       {
-        fontSize: '8px',
-        color: '#cbd5e1',
-      }
+        fontSize: "8px",
+        color: "#cbd5e1",
+      },
     );
 
-    const action = this.createText(245, 38, locked ? 'LOCKED' : 'START', {
-      fontSize: '9px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-      align: 'center',
+    const action = this.createText(245, 38, locked ? "LOCKED" : "START", {
+      fontSize: "9px",
+      color: "#ffffff",
+      fontStyle: "bold",
+      align: "center",
     }).setOrigin(0.5);
 
     target.add([bg, marker, title, enemy, reward, action]);
     target.setSize(284, 76);
     target.setInteractive(
       new Phaser.Geom.Rectangle(0, 0, 284, 76),
-      Phaser.Geom.Rectangle.Contains
+      Phaser.Geom.Rectangle.Contains,
     );
 
-    target.on('pointerdown', () => {
+    target.on("pointerdown", () => {
       if (locked) {
-        this.showToast('Level up to unlock this map.');
+        this.showToast("Level up to unlock this map.");
         return;
       }
 
       this.cameras.main.fadeOut(180, 5, 8, 18);
       this.time.delayedCall(190, () =>
-        this.scene.start('GameScene', { mapId: map.id })
+        this.scene.start("GameScene", { mapId: map.id }),
       );
     });
 
@@ -444,14 +478,14 @@ export class HubScene extends Phaser.Scene {
     const { overlay, panel } = this.createOverlayPanel(316, 448);
 
     panel.add(
-      this.createText(0, -196, 'HERO DECK', {
-        fontSize: '22px',
-        color: '#ffffff',
-        fontStyle: 'bold',
-        align: 'center',
-        stroke: '#6d28d9',
+      this.createText(0, -196, "HERO DECK", {
+        fontSize: "22px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        align: "center",
+        stroke: "#6d28d9",
         strokeThickness: 1,
-      }).setOrigin(0.5)
+      }).setOrigin(0.5),
     );
 
     CardDatabase.forEach((card, index) => {
@@ -462,13 +496,13 @@ export class HubScene extends Phaser.Scene {
           card,
           x,
           y,
-          profile.unlockedCardIds.includes(card.id)
-        )
+          profile.unlockedCardIds.includes(card.id),
+        ),
       );
     });
 
-    const close = this.createPanelButton(0, 184, 'CLOSE', 0x1e293b);
-    close.on('pointerdown', () => this.closeOverlay(overlay, panel));
+    const close = this.createPanelButton(0, 184, "CLOSE", 0x1e293b);
+    close.on("pointerdown", () => this.closeOverlay(overlay, panel));
     panel.add(close);
 
     this.openOverlay(overlay, panel);
@@ -478,34 +512,34 @@ export class HubScene extends Phaser.Scene {
     const { overlay, panel } = this.createOverlayPanel(316, 360);
 
     panel.add(
-      this.createText(0, -136, 'QUEST BOARD', {
-        fontSize: '22px',
-        color: '#ffffff',
-        fontStyle: 'bold',
-        align: 'center',
-        stroke: '#166534',
+      this.createText(0, -136, "QUEST BOARD", {
+        fontSize: "22px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        align: "center",
+        stroke: "#166534",
         strokeThickness: 1,
-      }).setOrigin(0.5)
+      }).setOrigin(0.5),
     );
 
     const quests = [
-      'Win 1 battle',
-      'Upgrade the castle',
-      'Train 12 infantry',
-      'Collect crystal income',
+      "Win 1 battle",
+      "Upgrade the castle",
+      "Train 12 infantry",
+      "Collect crystal income",
     ];
 
     quests.forEach((quest, index) => {
       panel.add(
         this.createText(-112, -82 + index * 42, `• ${quest}`, {
-          fontSize: '12px',
-          color: '#cbd5e1',
-        })
+          fontSize: "12px",
+          color: "#cbd5e1",
+        }),
       );
     });
 
-    const close = this.createPanelButton(0, 124, 'CLOSE', 0x1e293b);
-    close.on('pointerdown', () => this.closeOverlay(overlay, panel));
+    const close = this.createPanelButton(0, 124, "CLOSE", 0x1e293b);
+    close.on("pointerdown", () => this.closeOverlay(overlay, panel));
     panel.add(close);
 
     this.openOverlay(overlay, panel);
@@ -515,7 +549,7 @@ export class HubScene extends Phaser.Scene {
     card: CardData,
     x: number,
     y: number,
-    owned: boolean
+    owned: boolean,
   ) {
     const container = this.add.container(x, y);
     const color = owned ? this.getCardAccent(card.type) : 0x475569;
@@ -527,30 +561,40 @@ export class HubScene extends Phaser.Scene {
     bg.strokeRoundedRect(-62, -50, 124, 108, 12);
 
     const name = this.createText(0, -25, card.name.toUpperCase(), {
-      fontSize: '12px',
-      color: owned ? '#ffffff' : '#94a3b8',
-      fontStyle: 'bold',
-      align: 'center',
+      fontSize: "12px",
+      color: owned ? "#ffffff" : "#94a3b8",
+      fontStyle: "bold",
+      align: "center",
     }).setOrigin(0.5);
 
     const type = this.createText(0, 6, card.type.toUpperCase(), {
-      fontSize: '9px',
-      color: owned ? '#bae6fd' : '#64748b',
-      align: 'center',
+      fontSize: "9px",
+      color: owned ? "#bae6fd" : "#64748b",
+      align: "center",
     }).setOrigin(0.5);
 
-    const power = this.createText(0, 31, owned ? `POWER ${card.power}` : 'LOCKED', {
-      fontSize: '10px',
-      color: owned ? '#facc15' : '#64748b',
-      fontStyle: 'bold',
-      align: 'center',
-    }).setOrigin(0.5);
+    const power = this.createText(
+      0,
+      31,
+      owned ? `POWER ${card.power}` : "LOCKED",
+      {
+        fontSize: "10px",
+        color: owned ? "#facc15" : "#64748b",
+        fontStyle: "bold",
+        align: "center",
+      },
+    ).setOrigin(0.5);
 
     container.add([bg, name, type, power]);
     return container;
   }
 
-  private createResourcePill(x: number, y: number, value: string, color: number) {
+  private createResourcePill(
+    x: number,
+    y: number,
+    value: string,
+    color: number,
+  ) {
     const pill = this.add.container(x, y).setDepth(UI_DEPTH + 6);
 
     const bg = this.add
@@ -560,9 +604,9 @@ export class HubScene extends Phaser.Scene {
     const dot = this.add.circle(-24, 0, 5, color, 0.95);
 
     const text = this.createText(-12, 0, value, {
-      fontSize: '9px',
-      color: '#f8fafc',
-      fontStyle: 'bold',
+      fontSize: "9px",
+      color: "#f8fafc",
+      fontStyle: "bold",
     }).setOrigin(0, 0.5);
 
     pill.add([bg, dot, text]);
@@ -572,13 +616,13 @@ export class HubScene extends Phaser.Scene {
     x: number,
     y: number,
     cost: ResourceWallet,
-    resources: ResourceWallet
+    resources: ResourceWallet,
   ) {
     const row = this.add.container(x, y);
     const items = [
-      { key: 'gold', label: 'Gold', color: 0xfacc15 },
-      { key: 'food', label: 'Food', color: 0x22c55e },
-      { key: 'crystal', label: 'Crystal', color: 0xa78bfa },
+      { key: "gold", label: "Gold", color: 0xfacc15 },
+      { key: "food", label: "Food", color: 0x22c55e },
+      { key: "crystal", label: "Crystal", color: 0xa78bfa },
     ] as const;
 
     items.forEach((item, index) => {
@@ -588,16 +632,16 @@ export class HubScene extends Phaser.Scene {
       row.add([
         this.add.circle(itemX - 28, 3, 4, item.color, 0.9),
         this.createText(itemX, -9, item.label.toUpperCase(), {
-          fontSize: '7px',
-          color: '#94a3b8',
-          fontStyle: 'bold',
-          align: 'center',
+          fontSize: "7px",
+          color: "#94a3b8",
+          fontStyle: "bold",
+          align: "center",
         }).setOrigin(0.5),
         this.createText(itemX, 8, String(cost[item.key]), {
-          fontSize: '10px',
-          color: affordable ? '#ffffff' : '#fca5a5',
-          fontStyle: 'bold',
-          align: 'center',
+          fontSize: "10px",
+          color: affordable ? "#ffffff" : "#fca5a5",
+          fontStyle: "bold",
+          align: "center",
         }).setOrigin(0.5),
       ]);
     });
@@ -613,7 +657,7 @@ export class HubScene extends Phaser.Scene {
         this.scale.width,
         this.scale.height,
         0x020617,
-        0
+        0,
       )
       .setDepth(OVERLAY_DEPTH)
       .setInteractive();
@@ -636,7 +680,7 @@ export class HubScene extends Phaser.Scene {
 
   private openOverlay(
     overlay: Phaser.GameObjects.Rectangle,
-    panel: Phaser.GameObjects.Container
+    panel: Phaser.GameObjects.Container,
   ) {
     this.tweens.add({ targets: overlay, alpha: 0.78, duration: 160 });
     this.tweens.add({
@@ -644,14 +688,14 @@ export class HubScene extends Phaser.Scene {
       alpha: 1,
       scale: 1,
       duration: 190,
-      ease: 'Back.easeOut',
+      ease: "Back.easeOut",
     });
   }
 
   private closeOverlay(
     overlay: Phaser.GameObjects.Rectangle,
     panel: Phaser.GameObjects.Container,
-    onComplete?: () => void
+    onComplete?: () => void,
   ) {
     this.tweens.add({
       targets: [overlay, panel],
@@ -665,7 +709,12 @@ export class HubScene extends Phaser.Scene {
     });
   }
 
-  private createPanelButton(x: number, y: number, label: string, color: number) {
+  private createPanelButton(
+    x: number,
+    y: number,
+    label: string,
+    color: number,
+  ) {
     const button = this.add.container(x, y);
 
     const bg = this.add
@@ -673,17 +722,17 @@ export class HubScene extends Phaser.Scene {
       .setStrokeStyle(1, 0xffffff, 0.22);
 
     const text = this.createText(0, 0, label, {
-      fontSize: '11px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-      align: 'center',
+      fontSize: "11px",
+      color: "#ffffff",
+      fontStyle: "bold",
+      align: "center",
     }).setOrigin(0.5);
 
     button.add([bg, text]);
     button.setSize(204, 38);
     button.setInteractive(
       new Phaser.Geom.Rectangle(-102, -19, 204, 38),
-      Phaser.Geom.Rectangle.Contains
+      Phaser.Geom.Rectangle.Contains,
     );
 
     return button;
@@ -700,9 +749,9 @@ export class HubScene extends Phaser.Scene {
       .setStrokeStyle(1, 0x38bdf8, 0.7);
 
     const text = this.createText(0, 0, message, {
-      fontSize: '10px',
-      color: '#f8fafc',
-      align: 'center',
+      fontSize: "10px",
+      color: "#f8fafc",
+      align: "center",
     }).setOrigin(0.5);
 
     toast.add([bg, text]);
@@ -720,12 +769,12 @@ export class HubScene extends Phaser.Scene {
 
   private getBuildingState(
     profile: PlayerProfile,
-    buildingId: BuildingId
+    buildingId: BuildingId,
   ): BuildingState {
     return (
       profile.buildings.find((item) => item.id === buildingId) ?? {
         id: buildingId,
-        level: buildingId === 'castle' ? 2 : 1,
+        level: buildingId === "castle" ? 2 : 1,
       }
     );
   }
@@ -733,7 +782,7 @@ export class HubScene extends Phaser.Scene {
   private getPower(profile: PlayerProfile) {
     const buildingPower = profile.buildings.reduce(
       (total, building) => total + building.level * 120,
-      0
+      0,
     );
 
     const armyPower =
@@ -754,7 +803,7 @@ export class HubScene extends Phaser.Scene {
 
   private spendResources(
     resources: ResourceWallet,
-    cost: ResourceWallet
+    cost: ResourceWallet,
   ): ResourceWallet {
     return {
       gold: Math.max(0, resources.gold - cost.gold),
@@ -763,10 +812,10 @@ export class HubScene extends Phaser.Scene {
     };
   }
 
-  private getCardAccent(type: CardData['type']) {
-    if (type === 'slash') return 0xef4444;
-    if (type === 'dash') return 0x38bdf8;
-    if (type === 'shield') return 0x22c55e;
+  private getCardAccent(type: CardData["type"]) {
+    if (type === "slash") return 0xef4444;
+    if (type === "dash") return 0x38bdf8;
+    if (type === "shield") return 0x22c55e;
     return 0xa78bfa;
   }
 
@@ -774,11 +823,11 @@ export class HubScene extends Phaser.Scene {
     x: number,
     y: number,
     value: string,
-    style: Phaser.Types.GameObjects.Text.TextStyle
+    style: Phaser.Types.GameObjects.Text.TextStyle,
   ) {
     return this.add
       .text(x, y, value, {
-        fontFamily: 'Arial, Helvetica, sans-serif',
+        fontFamily: "Arial, Helvetica, sans-serif",
         ...style,
       })
       .setResolution(2);
