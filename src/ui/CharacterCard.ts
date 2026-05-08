@@ -16,6 +16,7 @@ export interface CharacterCardConfig {
 }
 
 export class CharacterCard {
+  public readonly id: string;
   public container: Phaser.GameObjects.Container;
 
   private scene: Phaser.Scene;
@@ -27,8 +28,10 @@ export class CharacterCard {
   constructor(config: CharacterCardConfig) {
     this.scene = config.scene;
     this.config = config;
+    this.id = config.id;
 
     this.container = this.scene.add.container(config.x, config.y);
+    this.container.name = config.id;
 
     this.glow = this.scene.add.rectangle(
       0,
@@ -148,6 +151,7 @@ export class CharacterCard {
     ]);
 
     this.container.setSize(config.width, config.height);
+
     this.container.setInteractive(
       new Phaser.Geom.Rectangle(
         -config.width / 2,
