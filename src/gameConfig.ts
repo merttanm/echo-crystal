@@ -11,8 +11,12 @@ import { ResultScene } from "./scenes/ResultScene";
 import { BattleScene } from "./scenes/BattleScene";
 import { WorldScene } from "./scenes/WorldScene";
 
-export const config: Phaser.Types.Core.GameConfig = {
+export const config = {
   type: Phaser.AUTO,
+  resolution:
+    typeof window !== "undefined"
+      ? Math.min(window.devicePixelRatio || 1, 2)
+      : 1,
 
   parent: "game-container",
 
@@ -59,4 +63,4 @@ export const config: Phaser.Types.Core.GameConfig = {
   input: {
     activePointers: 3,
   },
-};
+} as Phaser.Types.Core.GameConfig;

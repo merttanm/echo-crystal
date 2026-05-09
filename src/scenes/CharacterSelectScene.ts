@@ -4,7 +4,8 @@ import {
   getProfileFromRegistry,
   selectProfileCharacter,
 } from "../progression/ProfileRegistry";
-import { CharacterCard } from "../ui/CharacterCard";
+import { ReferenceFrame } from "../ui/HubScene";
+import { ResourcePill } from "../ui/ResourcePill";
 
 type CharacterMeta = {
   role: string;
@@ -36,11 +37,14 @@ const CHARACTER_META: Record<string, CharacterMeta> = {
 
 export class CharacterSelectScene extends Phaser.Scene {
   private selectedCharacter = "chrono_knight";
-  private cards: CharacterCard[] = [];
   private detailTitle?: Phaser.GameObjects.Text;
   private detailRole?: Phaser.GameObjects.Text;
   private detailDescription?: Phaser.GameObjects.Text;
   private continueButton?: Phaser.GameObjects.Container;
+  private cardHighlights = new Map<
+    string,
+    { frame: Phaser.GameObjects.Rectangle; glow: Phaser.GameObjects.Rectangle }
+  >();
 
   constructor() {
     super("CharacterSelectScene");
@@ -58,13 +62,12 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     this.createBackground(width, height);
     this.createTopBar(
-      width,
       profile.level,
       profile.resources.gold,
       profile.resources.crystal,
     );
     this.createHeader(width);
-    this.createCharacterCards(width, height);
+    this.createCharacterLayout(width, height);
     this.createDetailPanel(width, height);
     this.createContinueButton(width, height);
     this.refreshSelection();
@@ -99,15 +102,33 @@ export class CharacterSelectScene extends Phaser.Scene {
     });
   }
 
-  private createTopBar(
-    width: number,
-    level: number,
-    gold: number,
-    crystal: number,
-  ) {
-    this.createCurrencyPill(58, 30, `LV ${level}`, 0x38bdf8);
-    this.createCurrencyPill(width / 2, 30, `${gold}`, 0xf59e0b);
-    this.createCurrencyPill(width - 58, 30, `${crystal}`, 0x67e8f9);
+  private createTopBar(level: number, gold: number, crystal: number) {
+    new ResourcePill({
+      scene: this,
+      x: 58,
+      y: 30,
+      label: "Level",
+      value: String(level),
+      color: 0x38bdf8,
+    });
+    new ResourcePill({
+      scene: this,
+      x: 180,
+      y: 30,
+      label: "Gold",
+      value: String(gold),
+      color: 0xf59e0b,
+      width: 104,
+    });
+    new ResourcePill({
+      scene: this,
+      x: 302,
+      y: 30,
+      label: "Crystal",
+      value: String(crystal),
+      color: 0x67e8f9,
+      width: 104,
+    });
   }
 
   private createHeader(width: number) {
@@ -133,42 +154,62 @@ export class CharacterSelectScene extends Phaser.Scene {
     ).setOrigin(0.5);
   }
 
-  private createCharacterCards(width: number, height: number) {
-    const cardWidth = 98;
-    const cardHeight = 250;
-    const gap = 10;
-    const totalWidth =
-      characters.length * cardWidth + (characters.length - 1) * gap;
-    const startX = width / 2 - totalWidth / 2 + cardWidth / 2;
-    const y = Math.min(286, height * 0.46);
+  private createCharacterLayout(width: number, height: number) {
+    new ReferenceFrame({
+      scene: this,
+      x: width / 2,
+      y: height / 2 + 10,
+      width: 314,
+      height: 536,
+      imageKey: "ref_character",
+      glowColor: 0x67e8f9,
+    });
 
-    this.cards = characters.map((character, index) => {
-      const meta = this.getMeta(character.id);
+    const hitAreas = [
+      { id: "chrono_knight", x: 92, y: 227, width: 88, height: 218 },
+      { id: "aether_mage", x: 180, y: 227, width: 88, height: 218 },
+      { id: "ether_rogue", x: 268, y: 227, width: 88, height: 218 },
+    ];
 
-      return new CharacterCard({
-        scene: this,
-        x: startX + index * (cardWidth + gap),
-        y,
-        width: cardWidth,
-        height: cardHeight,
-        id: character.id,
-        name: character.name,
-        role: meta.role,
-        imageKey: meta.imageKey,
-        accentColor: meta.accentColor,
-        selected: this.selectedCharacter === character.id,
-        onSelect: (id) => this.selectCharacter(id),
+    hitAreas.forEach((area) => {
+      const meta = this.getMeta(area.id);
+      const glow = this.add
+        .rectangle(area.x, area.y, area.width + 6, area.height + 6, meta.accentColor, 0.06)
+        .setStrokeStyle(2, meta.accentColor, 0.3)
+        .setDepth(8);
+      const frame = this.add
+        .rectangle(area.x, area.y, area.width, area.height, 0x000000, 0)
+        .setStrokeStyle(2, meta.accentColor, 0.3)
+        .setDepth(9);
+
+      const hit = this.add
+        .zone(area.x, area.y, area.width, area.height)
+        .setRectangleDropZone(area.width, area.height)
+        .setDepth(12)
+        .setInteractive({ useHandCursor: true });
+
+      hit.on("pointerover", () => {
+        glow.setAlpha(0.16);
+        this.tweens.add({ targets: [glow, frame], scale: 1.02, duration: 90 });
       });
+
+      hit.on("pointerout", () => {
+        this.refreshSelection();
+        this.tweens.add({ targets: [glow, frame], scale: 1, duration: 90 });
+      });
+
+      hit.on("pointerdown", () => this.selectCharacter(area.id));
+      this.cardHighlights.set(area.id, { frame, glow });
     });
   }
 
   private createDetailPanel(width: number, height: number) {
-    const panelY = height - 134;
+    const panelY = height - 132;
 
     const panel = this.add.graphics();
-    panel.fillStyle(0x07111f, 0.94);
+    panel.fillStyle(0x07111f, 0.96);
     panel.fillRoundedRect(18, panelY - 54, width - 36, 104, 18);
-    panel.lineStyle(1, 0x38bdf8, 0.25);
+    panel.lineStyle(1, 0x38bdf8, 0.45);
     panel.strokeRoundedRect(18, panelY - 54, width - 36, 104, 18);
 
     this.detailTitle = this.createText(36, panelY - 34, "", {
@@ -237,38 +278,18 @@ export class CharacterSelectScene extends Phaser.Scene {
     });
   }
 
-  private createCurrencyPill(
-    x: number,
-    y: number,
-    value: string,
-    color: number,
-  ) {
-    const pill = this.add.container(x, y);
-
-    const bg = this.add
-      .rectangle(0, 0, 86, 28, 0x0f172a, 0.92)
-      .setStrokeStyle(1, color, 0.48);
-
-    const dot = this.add.circle(-28, 0, 5, color, 0.95);
-
-    const text = this.createText(-12, 0, value, {
-      fontSize: "10px",
-      color: "#f8fafc",
-      fontStyle: "bold",
-      align: "center",
-    }).setOrigin(0, 0.5);
-
-    pill.add([bg, dot, text]);
-  }
-
   private selectCharacter(id: string) {
     this.selectedCharacter = id;
     this.refreshSelection();
   }
 
   private refreshSelection() {
-    this.cards.forEach((card) => {
-      card.setSelected(card.id === this.selectedCharacter);
+    this.cardHighlights.forEach((highlight, id) => {
+      const selected = id === this.selectedCharacter;
+      const accentColor = this.getMeta(id).accentColor;
+      highlight.glow.setFillStyle(accentColor, selected ? 0.18 : 0.05);
+      highlight.glow.setStrokeStyle(2, accentColor, selected ? 0.9 : 0.25);
+      highlight.frame.setStrokeStyle(2, accentColor, selected ? 0.95 : 0.25);
     });
 
     const character =

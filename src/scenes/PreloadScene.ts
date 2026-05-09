@@ -45,6 +45,27 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image("crystal_temple_bg", "/environments/crystal_temple.png");
     this.load.image("void_gate_bg", "/environments/void_gate.png");
 
+    // Storyboard reference screens
+    this.load.image("ref_splash", "/reference/splash_ref.png");
+    this.load.image("ref_character", "/reference/character_ref.png");
+    this.load.image("ref_hub", "/reference/hub_ref.png");
+    this.load.image("ref_map", "/reference/map_ref.png");
+    this.load.image("ref_result", "/reference/result_ref.png");
+    this.load.image("ref_castle", "/reference/castle_ref.png");
+    this.load.image("ref_battle", "/reference/battle_ref.png");
+
+    // UI and hub chrome
+    this.load.image("hub_bg", "/hub/hub_bg.png");
+    this.load.image("hub_castle", "/hub/hub_castle.png");
+    this.load.image("hub_fog", "/hub/hub_fog.png");
+    this.load.image("hub_glow", "/hub/hub_glow.png");
+    this.load.image("ui_bottom_nav", "/ui/bottom_nav.png");
+    this.load.image("ui_resource_bar", "/ui/resource_bar.png");
+    this.load.image("ui_menu_button", "/ui/menu_button.png");
+    this.load.image("ui_gold_icon", "/ui/gold_icon.png");
+    this.load.image("ui_food_icon", "/ui/food_icon.png");
+    this.load.image("ui_crystal_icon", "/ui/crystal_icon.png");
+
     // Fallback placeholder assets
     this.load.image(
       "player",

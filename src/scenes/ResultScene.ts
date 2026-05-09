@@ -4,6 +4,7 @@ import {
   getProfileFromRegistry,
   grantProfileReward,
 } from "../progression/ProfileRegistry";
+import { ReferenceFrame } from "../ui/HubScene";
 
 interface ResultSceneData {
   victory?: boolean;
@@ -43,6 +44,16 @@ export class ResultScene extends Phaser.Scene {
     bg.fillGradientStyle(0x020617, 0x020617, 0x0f172a, 0x020617, 1, 1, 1, 1);
     bg.fillRect(0, 0, width, height);
 
+    new ReferenceFrame({
+      scene: this,
+      x: width / 2,
+      y: height / 2 + 4,
+      width: 314,
+      height: 348,
+      imageKey: "ref_result",
+      glowColor: panelColor,
+    }).container.setDepth(3);
+
     const glow = this.add.circle(width / 2, 154, 116, panelColor, 0.15);
     glow.setBlendMode(Phaser.BlendModes.ADD);
     this.tweens.add({
@@ -70,11 +81,9 @@ export class ResultScene extends Phaser.Scene {
       align: "center",
     }).setOrigin(0.5);
 
-    const panel = this.add.graphics();
-    panel.fillStyle(0x07111f, 0.94);
-    panel.fillRoundedRect(22, 164, 316, 330, 16);
-    panel.lineStyle(1, 0x38bdf8, 0.55);
-    panel.strokeRoundedRect(22, 164, 316, 330, 16);
+    this.add.rectangle(width / 2, 148, 244, 64, 0x020617, 0.72).setDepth(7);
+    this.add.rectangle(width / 2, 278, 252, 96, 0x020617, 0.64).setDepth(7);
+    this.add.rectangle(width / 2, 430, 268, 48, 0x020617, 0.78).setDepth(7);
 
     this.createRewardTile(
       48,

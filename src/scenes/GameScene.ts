@@ -50,7 +50,7 @@ export class GameScene extends Phaser.Scene {
     attack: 700,
     skill: 3200,
   };
-  private readonly groundY = 462;
+  private readonly groundY = 474;
   private hasBattleEnded = false;
   private isPlayerBusy = false;
   private isEnemyBusy = false;
@@ -61,6 +61,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(data: GameSceneData = {}) {
+    this.cameras.main.setBackgroundColor(0x030712);
+    this.cameras.main.fadeIn(260, 5, 8, 18);
+
     const selectedMap = maps.find((map) => map.id === data.mapId) ?? maps[0];
     if (!selectedMap) {
       throw new Error("No game maps configured.");
@@ -99,10 +102,21 @@ export class GameScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     this.cameras.main.setBackgroundColor(0x020617);
-    this.add
+    const bg = this.add
       .image(width / 2, height / 2, this.currentMap.backgroundKey)
       .setDisplaySize(width, height)
       .setDepth(-10);
+    bg.setScale(1.02);
+
+    this.tweens.add({
+      targets: bg,
+      scaleX: 1.06,
+      scaleY: 1.06,
+      duration: 5200,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
 
     const shade = this.add.graphics();
     shade.fillGradientStyle(
@@ -117,6 +131,51 @@ export class GameScene extends Phaser.Scene {
     );
     shade.fillRect(0, 0, width, height);
 
+    const upperVeil = this.add.graphics().setDepth(-8);
+    upperVeil.fillGradientStyle(
+      0x020617,
+      0x020617,
+      0x020617,
+      0x020617,
+      0.92,
+      0.92,
+      0.05,
+      0.05,
+    );
+    upperVeil.fillRect(0, 0, width, 168);
+
+    const lowerVeil = this.add.graphics().setDepth(-8);
+    lowerVeil.fillGradientStyle(
+      0x020617,
+      0x020617,
+      0x020617,
+      0x020617,
+      0.04,
+      0.04,
+      0.94,
+      0.94,
+    );
+    lowerVeil.fillRect(0, height - 230, width, 230);
+
+    const blueGlow = this.add
+      .circle(width * 0.28, height * 0.52, 112, this.currentMap.accentColor, 0.12)
+      .setDepth(-7)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    const redGlow = this.add
+      .circle(width * 0.76, height * 0.48, 126, 0xef4444, 0.1)
+      .setDepth(-7)
+      .setBlendMode(Phaser.BlendModes.ADD);
+
+    this.tweens.add({
+      targets: [blueGlow, redGlow],
+      alpha: { from: 0.08, to: 0.2 },
+      scale: { from: 0.95, to: 1.08 },
+      duration: 2400,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
+
     const ground = this.add.graphics();
     ground.fillGradientStyle(
       0x0f172a,
@@ -128,22 +187,25 @@ export class GameScene extends Phaser.Scene {
       1,
       1,
     );
-    ground.fillRect(0, this.groundY - 18, width, height - this.groundY + 18);
-    ground.lineStyle(2, this.currentMap.accentColor, 0.45);
-    ground.lineBetween(0, this.groundY - 18, width, this.groundY - 18);
+    ground.fillEllipse(width / 2, this.groundY + 10, width - 24, 88);
+    ground.lineStyle(2, this.currentMap.accentColor, 0.28);
+    ground.strokeEllipse(width / 2, this.groundY + 10, width - 24, 88);
 
-    this.add.text(18, 86, this.currentMap.name, {
-      fontFamily: "Arial",
-      fontSize: "18px",
-      color: "#f8fafc",
-      fontStyle: "bold",
-    });
-
-    this.add.text(18, 111, this.currentMap.enemyName, {
-      fontFamily: "Arial",
-      fontSize: "12px",
-      color: "#cbd5e1",
-    });
+    if (this.textures.exists("hub_fog")) {
+      const fog = this.add
+        .image(width / 2, this.groundY - 10, "hub_fog")
+        .setDisplaySize(width + 24, 110)
+        .setDepth(6)
+        .setAlpha(0.18);
+      this.tweens.add({
+        targets: fog,
+        x: width / 2 + 8,
+        duration: 2800,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+    }
   }
 
   private createCombatants(characterId: string) {
@@ -151,74 +213,134 @@ export class GameScene extends Phaser.Scene {
     const playerTexture = character?.id ?? "chrono_knight";
     const enemyTexture = this.getEnemyTextureKey();
 
-    this.player = this.add.container(78, this.groundY).setDepth(10);
-    const playerShadow = this.add.ellipse(0, 4, 78, 18, 0x000000, 0.38);
+    this.player = this.add.container(92, this.groundY).setDepth(10);
+    const playerShadow = this.add.ellipse(0, 8, 98, 24, 0x000000, 0.38);
     const playerGlow = this.add.circle(
       0,
-      -56,
-      48,
+      -82,
+      64,
       this.currentMap.accentColor,
-      0.12,
+      0.14,
     );
     this.playerSprite = this.add
-      .image(0, -64, playerTexture)
-      .setDisplaySize(88, 88);
-    const playerName = this.add
-      .text(0, -125, character?.name ?? "Hero", {
-        fontFamily: "Arial",
-        fontSize: "12px",
-        color: "#bbf7d0",
-        fontStyle: "bold",
-      })
+      .image(0, -110, playerTexture)
+      .setDisplaySize(156, 180);
+    const playerName = this.createText(0, -198, character?.name ?? "Hero", {
+      fontSize: "13px",
+      color: "#bbf7d0",
+      fontStyle: "bold",
+    })
       .setOrigin(0.5);
     this.player.add([playerShadow, playerGlow, this.playerSprite, playerName]);
 
-    this.enemy = this.add.container(282, this.groundY).setDepth(10);
-    const enemyShadow = this.add.ellipse(0, 4, 84, 20, 0x000000, 0.42);
-    const enemyGlow = this.add.circle(0, -58, 50, 0xef4444, 0.12);
+    this.enemy = this.add.container(274, this.groundY).setDepth(10);
+    const enemyShadow = this.add.ellipse(0, 8, 102, 24, 0x000000, 0.42);
+    const enemyGlow = this.add.circle(0, -82, 64, 0xef4444, 0.12);
     this.enemySprite = this.add
-      .image(0, -64, enemyTexture)
-      .setDisplaySize(92, 92)
+      .image(0, -110, enemyTexture)
+      .setDisplaySize(156, 180)
       .setFlipX(true);
     this.enemySprite.setTint(0xffd0d0);
-    const enemyName = this.add
-      .text(0, -128, this.currentMap.enemyName, {
-        fontFamily: "Arial",
-        fontSize: "12px",
-        color: "#fecaca",
-        fontStyle: "bold",
-      })
+    const enemyName = this.createText(0, -198, this.currentMap.enemyName, {
+      fontSize: "13px",
+      color: "#fecaca",
+      fontStyle: "bold",
+    })
       .setOrigin(0.5);
     this.enemy.add([enemyShadow, enemyGlow, this.enemySprite, enemyName]);
+
+    this.tweens.add({
+      targets: this.playerSprite,
+      y: -114,
+      duration: 1800,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
+    this.tweens.add({
+      targets: this.enemySprite,
+      y: -114,
+      duration: 2100,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
   }
 
   private createHud() {
     this.hudGraphics = this.add.graphics().setDepth(30);
 
-    this.playerHealthText = this.add
-      .text(18, 22, "", {
-        fontFamily: "Arial",
-        fontSize: "11px",
-        color: "#f8fafc",
-      })
-      .setDepth(31);
+    const topLeft = this.textures.exists("ui_resource_bar")
+      ? this.add
+          .image(88, 36, "ui_resource_bar")
+          .setDisplaySize(150, 34)
+          .setDepth(29)
+      : this.add
+          .rectangle(88, 36, 150, 34, 0x08111f, 0.94)
+          .setStrokeStyle(1, 0x38bdf8, 0.4)
+          .setDepth(29);
 
-    this.enemyHealthText = this.add
-      .text(this.scale.width - 18, 22, "", {
-        fontFamily: "Arial",
-        fontSize: "11px",
-        color: "#f8fafc",
-      })
+    const topRight = this.textures.exists("ui_resource_bar")
+      ? this.add
+          .image(this.scale.width - 88, 36, "ui_resource_bar")
+          .setDisplaySize(150, 34)
+          .setDepth(29)
+      : this.add
+          .rectangle(this.scale.width - 88, 36, 150, 34, 0x08111f, 0.94)
+          .setStrokeStyle(1, 0xef4444, 0.4)
+          .setDepth(29);
+
+    const battleBadge = this.textures.exists("ui_menu_button")
+      ? this.add
+          .image(this.scale.width / 2, 94, "ui_menu_button")
+          .setDisplaySize(184, 46)
+          .setDepth(29)
+      : this.add
+          .rectangle(this.scale.width / 2, 94, 184, 46, 0x08111f, 0.94)
+          .setStrokeStyle(1, this.currentMap.accentColor, 0.4)
+          .setDepth(29);
+
+    void topLeft;
+    void topRight;
+    void battleBadge;
+
+    this.playerHealthText = this.createText(18, 18, "", {
+      fontSize: "10px",
+      color: "#e2e8f0",
+      fontStyle: "bold",
+    }).setDepth(31);
+
+    this.enemyHealthText = this.createText(this.scale.width - 18, 18, "", {
+      fontSize: "10px",
+      color: "#e2e8f0",
+      fontStyle: "bold",
+    })
       .setOrigin(1, 0)
       .setDepth(31);
 
-    this.battleStatusText = this.add
-      .text(this.scale.width / 2, 154, "READY", {
-        fontFamily: "Arial",
-        fontSize: "13px",
-        color: "#e2e8f0",
-        fontStyle: "bold",
-      })
+    this.createText(this.scale.width / 2, 82, this.currentMap.name.toUpperCase(), {
+      fontSize: "12px",
+      color: "#f8fafc",
+      fontStyle: "bold",
+      align: "center",
+    })
+      .setOrigin(0.5)
+      .setDepth(31);
+
+    this.createText(this.scale.width / 2, 100, this.currentMap.enemyName, {
+      fontSize: "8px",
+      color: "#94a3b8",
+      align: "center",
+    })
+      .setOrigin(0.5)
+      .setDepth(31);
+
+    this.battleStatusText = this.createText(this.scale.width / 2, 136, "READY", {
+      fontSize: "13px",
+      color: "#e2e8f0",
+      fontStyle: "bold",
+      align: "center",
+    })
       .setOrigin(0.5)
       .setDepth(31);
 
@@ -226,34 +348,47 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createControls() {
-    const y = 582;
+    const { width, height } = this.scale;
+    const navY = height - 38;
+
+    if (this.textures.exists("ui_bottom_nav")) {
+      this.add
+        .image(width / 2, navY, "ui_bottom_nav")
+        .setDisplaySize(width - 18, 56)
+        .setDepth(33);
+    } else {
+      this.add
+        .rectangle(width / 2, navY, width - 18, 56, 0x08111f, 0.94)
+        .setStrokeStyle(1, 0x38bdf8, 0.3)
+        .setDepth(33);
+    }
 
     this.actionButtons.run = this.createCombatButton(
       "run",
       "RUN",
-      60,
-      y,
+      56,
+      560,
       0x0f766e,
     );
     this.actionButtons.jump = this.createCombatButton(
       "jump",
       "JUMP",
-      140,
-      y,
+      136,
+      560,
       0x2563eb,
     );
     this.actionButtons.attack = this.createCombatButton(
       "attack",
-      "HIT",
-      220,
-      y,
+      "STRIKE",
+      224,
+      560,
       0xdc2626,
     );
     this.actionButtons.skill = this.createCombatButton(
       "skill",
       "SKILL",
-      300,
-      y,
+      304,
+      560,
       0x7c3aed,
     );
 
@@ -282,21 +417,32 @@ export class GameScene extends Phaser.Scene {
     color: number,
   ): CombatButton {
     const container = this.add.container(x, y).setDepth(35);
-    const bg = this.add
-      .rectangle(0, 0, 68, 46, color, 0.9)
-      .setStrokeStyle(1, 0xffffff, 0.35);
-    const text = this.add
-      .text(0, 0, label, {
-        fontFamily: "Arial",
-        fontSize: "12px",
-        color: "#ffffff",
-        fontStyle: "bold",
-      })
-      .setOrigin(0.5);
+    const bg = this.textures.exists("ui_menu_button")
+      ? this.add
+          .image(0, 0, "ui_menu_button")
+          .setDisplaySize(72, 42)
+      : this.add
+          .rectangle(0, 0, 72, 42, 0x08111f, 0.96)
+          .setStrokeStyle(1, color, 0.56);
+    const glow = this.add.rectangle(0, 0, 72, 42, color, 0.06);
+    glow.setBlendMode(Phaser.BlendModes.ADD);
+    const marker = this.add.circle(-24, 0, 4, color, 1);
+    const text = this.createText(6, 0, label, {
+      fontSize: "10px",
+      color: "#ffffff",
+      fontStyle: "bold",
+      align: "left",
+    }).setOrigin(0, 0.5);
 
-    container.add([bg, text]);
-    container.setSize(68, 46).setInteractive({ useHandCursor: true });
+    container.add([glow, bg, marker, text]);
+    container.setSize(72, 42).setInteractive({ useHandCursor: true });
     container.on("pointerdown", () => this.triggerAction(action));
+    container.on("pointerover", () =>
+      this.tweens.add({ targets: container, scale: 1.04, duration: 90 }),
+    );
+    container.on("pointerout", () =>
+      this.tweens.add({ targets: container, scale: 1, duration: 90 }),
+    );
 
     return {
       container,
@@ -331,7 +477,7 @@ export class GameScene extends Phaser.Scene {
       this.playerSprite.setFlipX(false);
     }
 
-    this.player.x = Phaser.Math.Clamp(nextX, 46, this.enemy.x - 88);
+    this.player.x = Phaser.Math.Clamp(nextX, 64, this.enemy.x - 118);
   }
 
   private handleKeyboardActions() {
@@ -397,7 +543,7 @@ export class GameScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: this.player,
-      x: this.enemy.x - 105,
+      x: this.enemy.x - 118,
       duration: 420,
       ease: "Cubic.easeOut",
       onUpdate: () => this.createDust(this.player.x - 12, this.groundY - 8),
@@ -441,7 +587,7 @@ export class GameScene extends Phaser.Scene {
     const strike = () => {
       this.tweens.add({
         targets: this.player,
-        x: this.enemy.x - 78,
+        x: this.enemy.x - 92,
         duration: 120,
         yoyo: true,
         ease: "Sine.easeInOut",
@@ -455,10 +601,10 @@ export class GameScene extends Phaser.Scene {
       });
     };
 
-    if (this.enemy.x - this.player.x > 118) {
+    if (this.enemy.x - this.player.x > 134) {
       this.tweens.add({
         targets: this.player,
-        x: this.enemy.x - 112,
+        x: this.enemy.x - 126,
         duration: 230,
         ease: "Cubic.easeOut",
         onUpdate: () => this.createDust(this.player.x - 14, this.groundY - 8),
@@ -521,7 +667,7 @@ export class GameScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: this.enemy,
-      x: this.player.x + 92,
+      x: this.player.x + 106,
       duration: 270,
       ease: "Cubic.easeOut",
       onComplete: () => {
@@ -722,15 +868,13 @@ export class GameScene extends Phaser.Scene {
   }
 
   private showFloatingText(x: number, y: number, value: string, color: string) {
-    const text = this.add
-      .text(x, y, value, {
-        fontFamily: "Arial",
-        fontSize: "14px",
-        color,
-        fontStyle: "bold",
-        stroke: "#020617",
-        strokeThickness: 3,
-      })
+    const text = this.createText(x, y, value, {
+      fontSize: "14px",
+      color,
+      fontStyle: "bold",
+      stroke: "#020617",
+      strokeThickness: 3,
+    })
       .setOrigin(0.5)
       .setDepth(40);
 
@@ -792,5 +936,19 @@ export class GameScene extends Phaser.Scene {
     }
 
     return "chrono_knight";
+  }
+
+  private createText(
+    x: number,
+    y: number,
+    value: string,
+    style: Phaser.Types.GameObjects.Text.TextStyle,
+  ) {
+    return this.add
+      .text(x, y, value, {
+        fontFamily: "Arial, Helvetica, sans-serif",
+        ...style,
+      })
+      .setResolution(2);
   }
 }
