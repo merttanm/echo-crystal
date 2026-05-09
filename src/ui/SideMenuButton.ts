@@ -38,7 +38,13 @@ export class SideMenuButton {
     );
     glow.setBlendMode(Phaser.BlendModes.ADD);
 
-    const marker = config.scene.add.circle(-width / 2 + 14, 0, 5, config.accentColor, 1);
+    const marker = config.scene.add.circle(
+      -width / 2 + 14,
+      0,
+      5,
+      config.accentColor,
+      1,
+    );
     const accent = config.scene.add
       .rectangle(-width / 2 + 6, 0, 2, height - 10, config.accentColor, 0.9)
       .setBlendMode(Phaser.BlendModes.ADD);
@@ -56,7 +62,12 @@ export class SideMenuButton {
     this.container.add([glow, bg, accent, marker, text]);
     this.container.setSize(width, height);
     this.container.setInteractive({
-      hitArea: new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
+      hitArea: new Phaser.Geom.Rectangle(
+        -width / 2,
+        -height / 2,
+        width,
+        height,
+      ),
       hitAreaCallback: Phaser.Geom.Rectangle.Contains,
       useHandCursor: true,
     });
