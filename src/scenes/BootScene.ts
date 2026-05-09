@@ -13,9 +13,9 @@ export class BootScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     const bootText = this.add
-      .text(width / 2, height / 2, "Booting Heirs of Aether...", {
+      .text(width / 2, height / 2, "Loading...", {
         fontFamily: "Arial",
-        fontSize: "22px",
+        fontSize: "18px",
         color: "#ffffff",
       })
       .setOrigin(0.5);
@@ -27,7 +27,7 @@ export class BootScene extends Phaser.Scene {
       callback: () => {
         dots = (dots + 1) % 4;
         const dotString = ".".repeat(dots);
-        bootText.setText(`Booting Heirs of Aether${dotString}`);
+        bootText.setText(`Loading${dotString}`);
       },
       loop: true,
     });

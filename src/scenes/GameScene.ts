@@ -18,6 +18,13 @@ interface CombatButton {
   baseLabel: string;
 }
 
+type TextureCrop = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export class GameScene extends Phaser.Scene {
   private player!: Phaser.GameObjects.Container;
   private playerSprite!: Phaser.GameObjects.Image;
@@ -104,6 +111,7 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(0x020617);
     const bg = this.add
       .image(width / 2, height / 2, this.currentMap.backgroundKey)
+      .setCrop(0, 0, 375, 438)
       .setDisplaySize(width, height)
       .setDepth(-10);
     bg.setScale(1.02);
@@ -158,7 +166,13 @@ export class GameScene extends Phaser.Scene {
     lowerVeil.fillRect(0, height - 230, width, 230);
 
     const blueGlow = this.add
-      .circle(width * 0.28, height * 0.52, 112, this.currentMap.accentColor, 0.12)
+      .circle(
+        width * 0.28,
+        height * 0.52,
+        112,
+        this.currentMap.accentColor,
+        0.12,
+      )
       .setDepth(-7)
       .setBlendMode(Phaser.BlendModes.ADD);
     const redGlow = this.add
@@ -222,31 +236,37 @@ export class GameScene extends Phaser.Scene {
       this.currentMap.accentColor,
       0.14,
     );
-    this.playerSprite = this.add
-      .image(0, -110, playerTexture)
-      .setDisplaySize(156, 180);
+    this.playerSprite = this.createCroppedCharacterImage(
+      0,
+      -110,
+      playerTexture,
+      136,
+      190,
+    );
     const playerName = this.createText(0, -198, character?.name ?? "Hero", {
       fontSize: "13px",
       color: "#bbf7d0",
       fontStyle: "bold",
-    })
-      .setOrigin(0.5);
+    }).setOrigin(0.5);
     this.player.add([playerShadow, playerGlow, this.playerSprite, playerName]);
 
     this.enemy = this.add.container(274, this.groundY).setDepth(10);
     const enemyShadow = this.add.ellipse(0, 8, 102, 24, 0x000000, 0.42);
     const enemyGlow = this.add.circle(0, -82, 64, 0xef4444, 0.12);
-    this.enemySprite = this.add
-      .image(0, -110, enemyTexture)
-      .setDisplaySize(156, 180)
-      .setFlipX(true);
+    this.enemySprite = this.createCroppedCharacterImage(
+      0,
+      -110,
+      enemyTexture,
+      142,
+      194,
+      true,
+    );
     this.enemySprite.setTint(0xffd0d0);
     const enemyName = this.createText(0, -198, this.currentMap.enemyName, {
       fontSize: "13px",
       color: "#fecaca",
       fontStyle: "bold",
-    })
-      .setOrigin(0.5);
+    }).setOrigin(0.5);
     this.enemy.add([enemyShadow, enemyGlow, this.enemySprite, enemyName]);
 
     this.tweens.add({
@@ -318,12 +338,17 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(1, 0)
       .setDepth(31);
 
-    this.createText(this.scale.width / 2, 82, this.currentMap.name.toUpperCase(), {
-      fontSize: "12px",
-      color: "#f8fafc",
-      fontStyle: "bold",
-      align: "center",
-    })
+    this.createText(
+      this.scale.width / 2,
+      82,
+      this.currentMap.name.toUpperCase(),
+      {
+        fontSize: "12px",
+        color: "#f8fafc",
+        fontStyle: "bold",
+        align: "center",
+      },
+    )
       .setOrigin(0.5)
       .setDepth(31);
 
@@ -335,12 +360,17 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(31);
 
-    this.battleStatusText = this.createText(this.scale.width / 2, 136, "READY", {
-      fontSize: "13px",
-      color: "#e2e8f0",
-      fontStyle: "bold",
-      align: "center",
-    })
+    this.battleStatusText = this.createText(
+      this.scale.width / 2,
+      136,
+      "READY",
+      {
+        fontSize: "13px",
+        color: "#e2e8f0",
+        fontStyle: "bold",
+        align: "center",
+      },
+    )
       .setOrigin(0.5)
       .setDepth(31);
 
@@ -418,9 +448,7 @@ export class GameScene extends Phaser.Scene {
   ): CombatButton {
     const container = this.add.container(x, y).setDepth(35);
     const bg = this.textures.exists("ui_menu_button")
-      ? this.add
-          .image(0, 0, "ui_menu_button")
-          .setDisplaySize(72, 42)
+      ? this.add.image(0, 0, "ui_menu_button").setDisplaySize(72, 42)
       : this.add
           .rectangle(0, 0, 72, 42, 0x08111f, 0.96)
           .setStrokeStyle(1, color, 0.56);
@@ -936,6 +964,34 @@ export class GameScene extends Phaser.Scene {
     }
 
     return "chrono_knight";
+  }
+
+  private createCroppedCharacterImage(
+    x: number,
+    y: number,
+    textureKey: string,
+    width: number,
+    height: number,
+    flipX = false,
+  ) {
+    const image = this.add.image(x, y, textureKey);
+    const crop = this.getCharacterCrop(textureKey);
+    image.setCrop(crop.x, crop.y, crop.width, crop.height);
+    image.setDisplaySize(width, height);
+    image.setFlipX(flipX);
+    return image;
+  }
+
+  private getCharacterCrop(textureKey: string): TextureCrop {
+    if (textureKey === "aether_mage") {
+      return { x: 62, y: 8, width: 138, height: 282 };
+    }
+
+    if (textureKey === "ether_rogue") {
+      return { x: 70, y: 10, width: 122, height: 280 };
+    }
+
+    return { x: 72, y: 12, width: 116, height: 278 };
   }
 
   private createText(

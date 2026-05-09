@@ -37,7 +37,7 @@ export class HubScene extends Phaser.Scene {
         ?.name ?? "Commander";
 
     this.createBackground(width, height);
-    this.createReferenceHub(width, height);
+    this.createReferenceHub(width, height, profile);
     this.createTopBar(profile);
     this.createHeroHeader(width, commander, profile);
     this.createHubButtons(width, height);
@@ -172,7 +172,11 @@ export class HubScene extends Phaser.Scene {
     }
   }
 
-  private createReferenceHub(width: number, height: number) {
+  private createReferenceHub(
+    width: number,
+    height: number,
+    _profile: PlayerProfile,
+  ) {
     const frame = new ReferenceFrame({
       scene: this,
       x: width / 2,
@@ -263,7 +267,7 @@ export class HubScene extends Phaser.Scene {
       scene: this,
       x: width - 42,
       y: 248,
-      title: "WORLD",
+      title: "HARİTA",
       accentColor: 0x38bdf8,
       onPress: () => this.showWorldPanel(),
     });
@@ -273,7 +277,7 @@ export class HubScene extends Phaser.Scene {
       scene: this,
       x: width - 42,
       y: 304,
-      title: "HEROES",
+      title: "KAHRAMAN",
       accentColor: 0xa78bfa,
       onPress: () => this.showHeroPanel(),
     });
@@ -283,7 +287,7 @@ export class HubScene extends Phaser.Scene {
       scene: this,
       x: width - 42,
       y: 360,
-      title: "CASTLE",
+      title: "KALE",
       accentColor: 0xfacc15,
       onPress: () => this.showCastlePanel(),
     });
@@ -293,19 +297,19 @@ export class HubScene extends Phaser.Scene {
       scene: this,
       x: width - 42,
       y: 472,
-      title: "QUESTS",
+      title: "GÖREV",
       accentColor: 0x22c55e,
       onPress: () => this.showQuestPanel(),
     });
     questButton.container.setDepth(UI_DEPTH + 10);
 
     this.add
-      .zone(178, 266, 132, 160)
+      .zone(width / 2, 304, 158, 198)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.showCastlePanel());
 
     this.add
-      .zone(183, 337, 180, 222)
+      .zone(width / 2, 484, 286, 118)
       .setInteractive({ useHandCursor: true })
       .on("pointerdown", () => this.showWorldPanel());
 
@@ -327,13 +331,30 @@ export class HubScene extends Phaser.Scene {
     }
 
     const shortcuts = [
-      { x: width / 2 - 104, label: "WORLD", color: 0x38bdf8, onPress: () => this.showWorldPanel() },
-      { x: width / 2, label: "CASTLE", color: 0xfacc15, onPress: () => this.showCastlePanel() },
-      { x: width / 2 + 104, label: "QUESTS", color: 0x22c55e, onPress: () => this.showQuestPanel() },
+      {
+        x: width / 2 - 104,
+        label: "HARİTA",
+        color: 0x38bdf8,
+        onPress: () => this.showWorldPanel(),
+      },
+      {
+        x: width / 2,
+        label: "KALE",
+        color: 0xfacc15,
+        onPress: () => this.showCastlePanel(),
+      },
+      {
+        x: width / 2 + 104,
+        label: "GÖREV",
+        color: 0x22c55e,
+        onPress: () => this.showQuestPanel(),
+      },
     ];
 
     shortcuts.forEach((shortcut) => {
-      const button = this.add.container(shortcut.x, navY).setDepth(UI_DEPTH + 10);
+      const button = this.add
+        .container(shortcut.x, navY)
+        .setDepth(UI_DEPTH + 10);
       const dot = this.add.circle(0, -8, 4, shortcut.color, 1);
       const text = this.createText(0, 8, shortcut.label, {
         fontSize: "9px",
@@ -454,17 +475,21 @@ export class HubScene extends Phaser.Scene {
     );
 
     const map = maps.find((item) => item.id === "mist_valley") ?? maps[0];
-    const actionLabel = profile.level >= (map?.recommendedLevel ?? 1)
-      ? "START BATTLE"
-      : "LOCKED";
+    const actionLabel =
+      profile.level >= (map?.recommendedLevel ?? 1) ? "START BATTLE" : "LOCKED";
 
     panel.add(
-      this.createText(0, 114, `${map?.name ?? "Map"} - ${map?.enemyName ?? ""}`, {
-        fontSize: "12px",
-        color: "#f8fafc",
-        fontStyle: "bold",
-        align: "center",
-      }).setOrigin(0.5),
+      this.createText(
+        0,
+        114,
+        `${map?.name ?? "Map"} - ${map?.enemyName ?? ""}`,
+        {
+          fontSize: "12px",
+          color: "#f8fafc",
+          fontStyle: "bold",
+          align: "center",
+        },
+      ).setOrigin(0.5),
     );
 
     panel.add(
@@ -493,7 +518,9 @@ export class HubScene extends Phaser.Scene {
       }
 
       this.cameras.main.fadeOut(180, 5, 8, 18);
-      this.time.delayedCall(190, () => this.scene.start("GameScene", { mapId: map.id }));
+      this.time.delayedCall(190, () =>
+        this.scene.start("GameScene", { mapId: map.id }),
+      );
     });
     panel.add(start);
 

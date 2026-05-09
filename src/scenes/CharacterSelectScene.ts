@@ -4,39 +4,57 @@ import {
   getProfileFromRegistry,
   selectProfileCharacter,
 } from "../progression/ProfileRegistry";
-import { ReferenceFrame } from "../ui/HubScene";
 import { ResourcePill } from "../ui/ResourcePill";
 
+type TextureCrop = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 type CharacterMeta = {
+  displayName: string;
   role: string;
   description: string;
   imageKey: string;
   accentColor: number;
+  crop: TextureCrop;
 };
 
 const CHARACTER_META: Record<string, CharacterMeta> = {
   chrono_knight: {
-    role: "Frontline Duelist",
-    description: "Balanced warrior with strong defense and time-based attacks.",
+    displayName: "Chrono Knight",
+    role: "Zaman Şövalyesi",
+    description:
+      "Zamanın gücüyle savaşan şövalye. Dengeli, dayanıklı ve güvenilir.",
     imageKey: "chrono_knight",
     accentColor: 0x38bdf8,
+    crop: { x: 72, y: 12, width: 116, height: 278 },
   },
   ether_rogue: {
-    role: "Fast Striker",
-    description: "High mobility assassin focused on quick bursts and evasion.",
+    displayName: "Ether Rogue",
+    role: "Gölge Suikastçısı",
+    description:
+      "Hızlı saldırılar ve kaçınma üzerine kurulu çevik bir komutan.",
     imageKey: "ether_rogue",
     accentColor: 0xa78bfa,
+    crop: { x: 70, y: 10, width: 122, height: 280 },
   },
   aether_mage: {
-    role: "Arcane Damage",
-    description: "Mystic caster with powerful ranged skills and crystal magic.",
+    displayName: "Aether Mage",
+    role: "Toprak Büyücüsü",
+    description:
+      "Ağır vuruşlar, koruma büyüleri ve yüksek alan kontrolü sağlar.",
     imageKey: "aether_mage",
     accentColor: 0x22c55e,
+    crop: { x: 62, y: 8, width: 138, height: 282 },
   },
 };
 
 export class CharacterSelectScene extends Phaser.Scene {
   private selectedCharacter = "chrono_knight";
+  private featuredPortrait?: Phaser.GameObjects.Image;
   private detailTitle?: Phaser.GameObjects.Text;
   private detailRole?: Phaser.GameObjects.Text;
   private detailDescription?: Phaser.GameObjects.Text;
@@ -61,11 +79,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       profile.selectedCharacterId ?? characters[0]?.id ?? "chrono_knight";
 
     this.createBackground(width, height);
-    this.createTopBar(
-      profile.level,
-      profile.resources.gold,
-      profile.resources.crystal,
-    );
+    this.createTopBar(width, profile.resources.gold, profile.resources.crystal);
     this.createHeader(width);
     this.createCharacterLayout(width, height);
     this.createDetailPanel(width, height);
@@ -74,12 +88,26 @@ export class CharacterSelectScene extends Phaser.Scene {
   }
 
   private createBackground(width: number, height: number) {
-    const bg = this.add.graphics();
+    this.add
+      .image(width / 2, height / 2, "mist_valley_bg")
+      .setCrop(0, 0, 375, 438)
+      .setDisplaySize(width, height)
+      .setDepth(-8);
 
-    bg.fillGradientStyle(0x020617, 0x020617, 0x0f172a, 0x050812, 1);
+    const bg = this.add.graphics().setDepth(-7);
+    bg.fillGradientStyle(
+      0x020617,
+      0x020617,
+      0x0f172a,
+      0x050812,
+      0.72,
+      0.72,
+      0.94,
+      0.94,
+    );
     bg.fillRect(0, 0, width, height);
 
-    const glowA = this.add.circle(width * 0.18, 126, 120, 0x38bdf8, 0.1);
+    const glowA = this.add.circle(width * 0.18, 136, 118, 0x38bdf8, 0.1);
     const glowB = this.add.circle(
       width * 0.82,
       height * 0.42,
@@ -102,155 +130,229 @@ export class CharacterSelectScene extends Phaser.Scene {
     });
   }
 
-  private createTopBar(level: number, gold: number, crystal: number) {
+  private createTopBar(width: number, gold: number, crystal: number) {
     new ResourcePill({
       scene: this,
-      x: 58,
-      y: 30,
-      label: "Level",
-      value: String(level),
-      color: 0x38bdf8,
-    });
-    new ResourcePill({
-      scene: this,
-      x: 180,
-      y: 30,
-      label: "Gold",
+      x: width - 154,
+      y: 28,
       value: String(gold),
-      color: 0xf59e0b,
-      width: 104,
-    });
+      color: 0xfacc15,
+      width: 92,
+      iconKey: "ui_gold_icon",
+    }).container.setDepth(22);
+
     new ResourcePill({
       scene: this,
-      x: 302,
-      y: 30,
-      label: "Crystal",
+      x: width - 66,
+      y: 28,
       value: String(crystal),
-      color: 0x67e8f9,
-      width: 104,
-    });
+      color: 0xa78bfa,
+      width: 74,
+      iconKey: "ui_crystal_icon",
+    }).container.setDepth(22);
+
+    const addButton = this.add.container(width - 24, 28).setDepth(23);
+    const bg = this.add
+      .rectangle(0, 0, 28, 28, 0x07111f, 0.96)
+      .setStrokeStyle(1, 0x67e8f9, 0.65);
+    const plus = this.createText(0, -1, "+", {
+      fontSize: "20px",
+      color: "#67e8f9",
+      fontStyle: "bold",
+      align: "center",
+    }).setOrigin(0.5);
+
+    addButton.add([bg, plus]);
   }
 
   private createHeader(width: number) {
-    this.createText(width / 2, 72, "SELECT YOUR COMMANDER", {
+    this.createText(width / 2, 70, "KOMUTANINI SEÇ", {
       fontSize: "20px",
       color: "#f8fafc",
       fontStyle: "bold",
       align: "center",
       stroke: "#0891b2",
       strokeThickness: 1,
-    }).setOrigin(0.5);
+    })
+      .setOrigin(0.5)
+      .setDepth(22);
 
     this.createText(
       width / 2,
-      99,
-      "Choose the hero that will lead your crystal kingdom.",
+      96,
+      "Kristal krallığını yönetecek kahramanı belirle.",
       {
         fontSize: "10px",
         color: "#94a3b8",
         align: "center",
         wordWrap: { width: width - 44 },
       },
-    ).setOrigin(0.5);
+    )
+      .setOrigin(0.5)
+      .setDepth(22);
   }
 
-  private createCharacterLayout(width: number, height: number) {
-    new ReferenceFrame({
-      scene: this,
-      x: width / 2,
-      y: height / 2 + 10,
-      width: 314,
-      height: 536,
-      imageKey: "ref_character",
-      glowColor: 0x67e8f9,
+  private createCharacterLayout(width: number, _height: number) {
+    const coreGlow = this.add
+      .circle(width / 2, 250, 156, 0x38bdf8, 0.1)
+      .setBlendMode(Phaser.BlendModes.ADD)
+      .setDepth(3);
+
+    this.tweens.add({
+      targets: coreGlow,
+      scale: { from: 0.94, to: 1.08 },
+      alpha: { from: 0.09, to: 0.17 },
+      duration: 1800,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
     });
 
-    const hitAreas = [
-      { id: "chrono_knight", x: 92, y: 227, width: 88, height: 218 },
-      { id: "aether_mage", x: 180, y: 227, width: 88, height: 218 },
-      { id: "ether_rogue", x: 268, y: 227, width: 88, height: 218 },
+    const choices = [
+      { id: "chrono_knight", x: 64 },
+      { id: "aether_mage", x: width / 2 },
+      { id: "ether_rogue", x: width - 64 },
     ];
+    const cardY = 248;
+    const cardWidth = 92;
+    const cardHeight = 252;
 
-    hitAreas.forEach((area) => {
-      const meta = this.getMeta(area.id);
+    choices.forEach((choice) => {
+      const meta = this.getMeta(choice.id);
       const glow = this.add
-        .rectangle(area.x, area.y, area.width + 6, area.height + 6, meta.accentColor, 0.06)
-        .setStrokeStyle(2, meta.accentColor, 0.3)
+        .rectangle(
+          choice.x,
+          cardY,
+          cardWidth + 8,
+          cardHeight + 8,
+          meta.accentColor,
+          0.05,
+        )
+        .setStrokeStyle(2, meta.accentColor, 0.22)
         .setDepth(8);
       const frame = this.add
-        .rectangle(area.x, area.y, area.width, area.height, 0x000000, 0)
-        .setStrokeStyle(2, meta.accentColor, 0.3)
+        .rectangle(choice.x, cardY, cardWidth, cardHeight, 0x07111f, 0.94)
+        .setStrokeStyle(2, meta.accentColor, 0.28)
         .setDepth(9);
+      const portrait = this.createCharacterPortrait(
+        choice.x,
+        cardY - 24,
+        choice.id,
+        cardWidth + 18,
+        178,
+        10,
+      );
+      const shade = this.add
+        .rectangle(choice.x, cardY + 72, cardWidth, 84, 0x020617, 0.72)
+        .setDepth(10);
+      const name = this.createText(
+        choice.x,
+        cardY + 66,
+        meta.displayName.toUpperCase(),
+        {
+          fontSize: "9px",
+          color: "#f8fafc",
+          fontStyle: "bold",
+          align: "center",
+          wordWrap: { width: cardWidth - 12 },
+        },
+      )
+        .setOrigin(0.5)
+        .setDepth(11);
+      const gem = this.add
+        .circle(choice.x, cardY + 108, 14, meta.accentColor, 0.9)
+        .setStrokeStyle(2, 0xffffff, 0.28)
+        .setDepth(11);
 
       const hit = this.add
-        .zone(area.x, area.y, area.width, area.height)
-        .setRectangleDropZone(area.width, area.height)
+        .zone(choice.x, cardY, cardWidth + 8, cardHeight + 8)
         .setDepth(12)
         .setInteractive({ useHandCursor: true });
 
       hit.on("pointerover", () => {
-        glow.setAlpha(0.16);
-        this.tweens.add({ targets: [glow, frame], scale: 1.02, duration: 90 });
+        glow.setFillStyle(meta.accentColor, 0.14);
+        this.tweens.add({
+          targets: [glow, frame, portrait, shade, name, gem],
+          scale: 1.025,
+          duration: 90,
+        });
       });
-
       hit.on("pointerout", () => {
         this.refreshSelection();
-        this.tweens.add({ targets: [glow, frame], scale: 1, duration: 90 });
+        this.tweens.add({
+          targets: [glow, frame, portrait, shade, name, gem],
+          scale: 1,
+          duration: 90,
+        });
       });
+      hit.on("pointerdown", () => this.selectCharacter(choice.id));
 
-      hit.on("pointerdown", () => this.selectCharacter(area.id));
-      this.cardHighlights.set(area.id, { frame, glow });
+      this.cardHighlights.set(choice.id, { frame, glow });
     });
+
+    this.featuredPortrait = this.createCharacterPortrait(
+      60,
+      488,
+      this.selectedCharacter,
+      46,
+      58,
+      21,
+    );
+    this.featuredPortrait.setAlpha(0.72);
   }
 
   private createDetailPanel(width: number, height: number) {
-    const panelY = height - 132;
+    const panelY = height - 136;
 
-    const panel = this.add.graphics();
+    const panel = this.add.graphics().setDepth(20);
     panel.fillStyle(0x07111f, 0.96);
     panel.fillRoundedRect(18, panelY - 54, width - 36, 104, 18);
     panel.lineStyle(1, 0x38bdf8, 0.45);
     panel.strokeRoundedRect(18, panelY - 54, width - 36, 104, 18);
 
-    this.detailTitle = this.createText(36, panelY - 34, "", {
+    this.detailTitle = this.createText(92, panelY - 34, "", {
       fontSize: "15px",
       color: "#f8fafc",
       fontStyle: "bold",
-    });
+    }).setDepth(21);
 
-    this.detailRole = this.createText(36, panelY - 10, "", {
+    this.detailRole = this.createText(92, panelY - 10, "", {
       fontSize: "10px",
       color: "#67e8f9",
       fontStyle: "bold",
-    });
+    }).setDepth(21);
 
     this.detailDescription = this.createText(36, panelY + 13, "", {
       fontSize: "10px",
-      color: "#94a3b8",
+      color: "#cbd5e1",
       wordWrap: { width: width - 72 },
       lineSpacing: 3,
-    });
+    }).setDepth(21);
   }
 
   private createContinueButton(width: number, height: number) {
-    this.continueButton = this.add.container(width / 2, height - 46);
+    this.continueButton = this.add
+      .container(width / 2, height - 48)
+      .setDepth(22);
 
     const bg = this.add
-      .rectangle(0, 0, width - 54, 44, 0x0891b2, 0.96)
-      .setStrokeStyle(1, 0x67e8f9, 0.9);
+      .rectangle(0, 0, width - 114, 44, 0x9a6a12, 0.98)
+      .setStrokeStyle(1, 0xfacc15, 0.86);
 
-    const label = this.createText(0, 0, "CONTINUE TO KINGDOM", {
-      fontSize: "12px",
+    const label = this.createText(0, 0, "SEÇ", {
+      fontSize: "15px",
       color: "#ffffff",
       fontStyle: "bold",
       align: "center",
+      stroke: "#422006",
+      strokeThickness: 2,
     }).setOrigin(0.5);
 
     this.continueButton.add([bg, label]);
 
-    this.continueButton.setSize(width - 54, 44);
+    this.continueButton.setSize(width - 114, 44);
     this.continueButton.setInteractive(
-      new Phaser.Geom.Rectangle(-(width - 54) / 2, -22, width - 54, 44),
+      new Phaser.Geom.Rectangle(-(width - 114) / 2, -22, width - 114, 44),
       Phaser.Geom.Rectangle.Contains,
     );
 
@@ -295,10 +397,13 @@ export class CharacterSelectScene extends Phaser.Scene {
     const character =
       characters.find((item) => item.id === this.selectedCharacter) ??
       characters[0];
-
     const meta = this.getMeta(character.id);
 
-    this.detailTitle?.setText(character.name.toUpperCase());
+    if (this.featuredPortrait) {
+      this.setCharacterPortraitTexture(this.featuredPortrait, character.id);
+    }
+
+    this.detailTitle?.setText(meta.displayName.toUpperCase());
     this.detailRole?.setText(meta.role.toUpperCase());
     this.detailDescription?.setText(meta.description);
   }
@@ -310,6 +415,29 @@ export class CharacterSelectScene extends Phaser.Scene {
   private startHub() {
     this.cameras.main.fadeOut(220, 5, 8, 18);
     this.time.delayedCall(230, () => this.scene.start("HubScene"));
+  }
+
+  private createCharacterPortrait(
+    x: number,
+    y: number,
+    id: string,
+    width: number,
+    height: number,
+    depth: number,
+  ) {
+    const image = this.add.image(x, y, this.getMeta(id).imageKey);
+    this.setCharacterPortraitTexture(image, id);
+    return image.setDisplaySize(width, height).setDepth(depth);
+  }
+
+  private setCharacterPortraitTexture(
+    image: Phaser.GameObjects.Image,
+    id: string,
+  ) {
+    const meta = this.getMeta(id);
+    const crop = meta.crop;
+    image.setTexture(meta.imageKey);
+    image.setCrop(crop.x, crop.y, crop.width, crop.height);
   }
 
   private createText(

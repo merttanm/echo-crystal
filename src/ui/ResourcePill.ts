@@ -14,11 +14,20 @@ export interface ResourcePillConfig {
 export class ResourcePill {
   public readonly container: Phaser.GameObjects.Container;
   private readonly valueText: Phaser.GameObjects.Text;
+  private readonly valueBaseFontSize: number;
+  private readonly valueMaxWidth: number;
+  private readonly valueMinFontSize: number;
 
   constructor(config: ResourcePillConfig) {
     const width = config.width ?? 86;
+    const textX = -width / 2 + 28;
+    const textMaxWidth = width - 38;
+    const valueFontSize = config.label ? 10 : 11;
 
     this.container = config.scene.add.container(config.x, config.y);
+    this.valueBaseFontSize = valueFontSize;
+    this.valueMaxWidth = textMaxWidth;
+    this.valueMinFontSize = config.label ? 8 : 9;
 
     const hasBarTexture = config.scene.textures.exists("ui_resource_bar");
     const bg = hasBarTexture
@@ -30,19 +39,20 @@ export class ResourcePill {
           .setStrokeStyle(1, config.color, 0.5);
 
     const iconKey = config.iconKey ?? this.getIconKey(config.label);
-    const icon = iconKey && config.scene.textures.exists(iconKey)
-      ? config.scene.add
-          .image(-width / 2 + 14, 0, iconKey)
-          .setDisplaySize(14, 14)
-      : null;
+    const icon =
+      iconKey && config.scene.textures.exists(iconKey)
+        ? config.scene.add
+            .image(-width / 2 + 14, 0, iconKey)
+            .setDisplaySize(14, 14)
+        : null;
 
     const dot = !icon
       ? config.scene.add.circle(-width / 2 + 12, 0, 5, config.color, 1)
       : null;
 
     const labelText = config.label
-      ? config.scene
-          .add.text(-width / 2 + 28, -7, config.label.toUpperCase(), {
+      ? config.scene.add
+          .text(textX, -7, config.label.toUpperCase(), {
             fontFamily: "Arial, Helvetica, sans-serif",
             fontSize: "7px",
             color: "#94a3b8",
@@ -51,15 +61,25 @@ export class ResourcePill {
           .setResolution(2)
       : null;
 
-    this.valueText = config.scene
-      .add.text(-width / 2 + 28, config.label ? 5 : 0, config.value, {
+    this.valueText = config.scene.add
+      .text(textX, config.label ? 5 : 0, config.value, {
         fontFamily: "Arial, Helvetica, sans-serif",
-        fontSize: config.label ? "10px" : "11px",
+        fontSize: `${valueFontSize}px`,
         color: "#f8fafc",
         fontStyle: "bold",
       })
       .setOrigin(0, config.label ? 0 : 0.5)
       .setResolution(2);
+
+    if (labelText) {
+      this.fitTextToWidth(labelText, textMaxWidth, 7, 6);
+    }
+    this.fitTextToWidth(
+      this.valueText,
+      this.valueMaxWidth,
+      this.valueBaseFontSize,
+      this.valueMinFontSize,
+    );
 
     const children: Phaser.GameObjects.GameObject[] = [bg];
     if (icon) children.push(icon);
@@ -72,6 +92,12 @@ export class ResourcePill {
 
   setValue(value: string) {
     this.valueText.setText(value);
+    this.fitTextToWidth(
+      this.valueText,
+      this.valueMaxWidth,
+      this.valueBaseFontSize,
+      this.valueMinFontSize,
+    );
   }
 
   private getIconKey(label?: string) {
@@ -87,5 +113,20 @@ export class ResourcePill {
     }
 
     return null;
+  }
+
+  private fitTextToWidth(
+    text: Phaser.GameObjects.Text,
+    maxWidth: number,
+    baseFontSize: number,
+    minFontSize: number,
+  ) {
+    let fontSize = baseFontSize;
+    text.setFontSize(`${fontSize}px`);
+
+    while (text.width > maxWidth && fontSize > minFontSize) {
+      fontSize -= 1;
+      text.setFontSize(`${fontSize}px`);
+    }
   }
 }

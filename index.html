@@ -6,7 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>echo-crystal</title>
     <style>
-      body { margin: 0; background-color: #000; overflow: hidden; }
+      html,
+      body,
+      #game-container {
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+        background: #000;
+      }
+
+      #game-container {
+        position: fixed;
+        inset: 0;
+      }
+
+      canvas {
+        display: block;
+        position: absolute;
+        inset: 0;
+        width: 100vw !important;
+        height: 100vh !important;
+      }
     </style>
   </head>
   <body>
