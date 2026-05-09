@@ -76,7 +76,16 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image("hub_fog", "/hub/hub_fog.png");
     this.load.image("hub_glow", "/hub/hub_glow.png");
 
-    // UI assets
+    // UI assets - current keys used by HubScene / SideMenuButton / GameScene
+    this.load.image("ui_panel_glass", "/ui/panel_glass.png");
+    this.load.image("ui_menu_button", "/ui/menu_button.png");
+    this.load.image("ui_bottom_nav", "/ui/bottom_nav.png");
+    this.load.image("ui_resource_bar", "/ui/resource_bar.png");
+    this.load.image("ui_gold_icon", "/ui/gold_icon.png");
+    this.load.image("ui_food_icon", "/ui/food_icon.png");
+    this.load.image("ui_crystal_icon", "/ui/crystal_icon.png");
+
+    // UI aliases - keeps older code working too
     this.load.image("panel_glass", "/ui/panel_glass.png");
     this.load.image("menu_button", "/ui/menu_button.png");
     this.load.image("bottom_nav", "/ui/bottom_nav.png");
@@ -85,7 +94,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image("food_icon", "/ui/food_icon.png");
     this.load.image("crystal_icon", "/ui/crystal_icon.png");
 
-    // Optional storyboard reference screens
+    // Reference screens
     this.load.image("ref_splash", "/reference/splash_ref.png");
     this.load.image("ref_character", "/reference/character_ref.png");
     this.load.image("ref_hub", "/reference/hub_ref.png");
